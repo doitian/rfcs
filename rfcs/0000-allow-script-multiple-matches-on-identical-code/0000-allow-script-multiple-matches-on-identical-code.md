@@ -89,7 +89,7 @@ The deployment can be performed in two stages.
 
 The first stage will activate the new consensus rule starting from a specific epoch. The mainnet and testnet will use different starting epochs and all other chains will use the new rule from epoch 0.
 
-The second stage is optional. After the new rule has been activated, and all the old blocks in both testnet and mainnet before the starting epochs all can pass the new consensus rule verification, then the old consensus rule can be removed and all chains will use the new rule starting from the genesis block.
+After the fork is activated, the old rule will be replaced by the new rule starting from the genesis block in all chains.
 
 ## Backward compatibility
 
