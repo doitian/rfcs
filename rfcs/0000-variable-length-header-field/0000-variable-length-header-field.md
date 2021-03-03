@@ -29,60 +29,10 @@ The block header is encoded as a molecule struct, which consists of fixed length
 
 There are many different ways to add the variable length field to the block header. I have listed some options below for discussion.
 
-### Appending the Field At the End
-
-The block header size is at least 208 bytes. The first 208 bytes are encoded the same as the current header. The remaining bytes are the variable length field.
-
-```
-+-----------------------+-----------+
-|                       |           |
-|    208-bytes header   | New Field |
-|                       |           |
-+-----------------------+-----------+
-```
-
-### Using Molecule Table in New Block Headers
-
-This solution uses a different molecule schema for the new block headers. If the block header size is 208 bytes, it's encoded using the old schema, otherwise it uses the new one. The new schema converts `RawHeader` into a molecule table and adds a variable length bytes field at the end of `RawHeader`.
-
-```
-old one:
-        208 bytes
-+-----+-----------------+
-|     |                 |
-|Nonce| RawHeader Stuct |
-|     |                 |
-+-----+-----------------+
-
-new one:
-
-+-----+-------------------------------+
-|     |                               |
-|Nonce| RawHeader Table               |
-|     |                               |
-+-----+-------------------------------+
-```
-
-### Appending a Hash At the End
-
-Instead of adding the new field directly at the end of the header, this solution adds a 32 bytes hash at the end of the header which is the hash of the new variable length field. The header is still a fixed length struct but is 32 bytes larger. If client does not need the extra field, it only has the 32 bytes overhead. Otherwise it has to download both the header and the extra field and verify that the hash matches.
-
-```
-+-----------------------+--+
-|                       |  |
-|    208-bytes header   | +----+
-|                       |  |   |
-+-----------------------+--+   |
-                               | Hash of
-                               |
-                               v
-                         +-----+-----+
-                         |           |
-                         | New Field |
-                         |           |
-                         +-----------+
-
-```
+1. [Appending the Field At the End](./1-appending-the-field-at-the-end.md)
+2. [Using Molecule Table in New Block Headers](./2-using-molecule-table-in-new-block-headers.md)
+3. [Appending a Hash At the End](./3-appending-a-hash-at-the-end.md)
+4. [Reusing `uncles_hash` in the Header](./4-reusing-uncles-hash-in-the-header.md)
 
 ----
 
