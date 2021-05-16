@@ -11,11 +11,11 @@ Created: 2021-02-03
 
 ## Abstract
 
-This document proposes a transaction verification consensus change to allow multiple cell dep matches when all the matches are resolved to the same script code.
+This document proposes a transaction verification consensus change to allow multiple cell dep matches on type script hash when all the matches are resolved to the same script code.
 
 ## Motivation
 
-Currently, CKB does not allow multiple matches when resolving the script in dep cells. There are two scenarios in which this can cause troubles:
+Currently, CKB does not allow multiple matches when resolving the script by type script hash in dep cells. There are two scenarios in which this can cause troubles:
 
 1. Dep group is a feature to let transactions add multiple dep cells together. When a user adds multiple dep groups, these groups may have duplicated cells. The user has to expand the dep groups and remove the duplicates, which leads to a larger transaction.
 2. In protocols like Open Transaction, the transaction is assembled by merging several partial transactions. If these partial transactions contain duplicated dep groups, it will make the signature algorithm very complex.
@@ -29,9 +29,9 @@ There are two different ways to reference the script, via data hash or type hash
 
 ## Specification
 
-When the transaction verifier resolves script code in dep cell via data hash, multiple matches are allowed.
+When the transaction verifier resolves script code in dep cell via data hash, multiple matches are allowed. This is the same as before.
 
-When the verifier resolves code via type hash, multiple matches are allowed if all the matched cells have the same data, otherwise, the transaction is invalid and the verification fails.
+When the verifier resolves code via type hash, multiple matches are allowed if all the matched cells have the same data, otherwise, the transaction is invalid and the verification fails. This is the modification introduced by this RFC.
 
 ## Test Vectors
 
