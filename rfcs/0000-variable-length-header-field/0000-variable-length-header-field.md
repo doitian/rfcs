@@ -87,13 +87,6 @@ table Block {
     extension_hash: Byte32,
 }
 
-table BlockTransactions {
-    block_hash:     Byte32,
-    transactions:   TransactionVec,
-    uncles:         UncleBlockVec,
-    extension_hash: Byte32,
-}
-
 table CompactBlock {
     header:                 Header,
     short_ids:              ProposalShortIdVec,
