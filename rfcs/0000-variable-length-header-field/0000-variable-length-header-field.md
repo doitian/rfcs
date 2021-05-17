@@ -7,21 +7,21 @@ Organization: Nervos Foundation
 Created: 2021-02-07
 ---
 
-# Add a variable length field in the block header
+# Add a variable length field in the block
 
 ## Abstract
 
-This document proposes adding an optional variable length field to the block header.
+This document proposes adding an optional variable length field to the block.
 
 ## Motivation
 
 Currently, the block header is a fixed length structure. Each header consists of 208 bytes.
 
-Many extensions require adding new fields into the block. For example, PoA for testnet requires a 64 bytes signature, and flyclient also needs to add a 64 bytes hash.
+Many extensions require adding new fields into the block. For example, PoA for testnet requires 65 bytes for each signature, and flyclient also needs to add a 64 bytes hash.
 
 There's no enough reserved bits in the header for these extensions. There's a workaround to store these data in the cellbase transaction, but this solution has a big overhead for clients which wants to quickly verify the data using PoW only. If the data are stored in the cellbase transaction, the client has to download the cellbase transaction and the merkle tree proof of the cellbase transaction, which can be larger than the block header itself.
 
-This document proposes a solution to add a variable length field to the block header. How the new field is interpreted is beyond the scope of this document and must be defined and deployed via a future soft fork.
+This document proposes a solution to add a variable length field in the block. How the new field is interpreted is beyond the scope of this document and must be defined and deployed via a future soft fork. Although the field is added to the block body, nodes can synchronize block header and this field together in the future version.
 
 ## Specification
 
@@ -42,18 +42,12 @@ In CKB ckb2019 and blocks generated in ckb2019, `extra_hash` is the same with th
 
 See Appendix for the default hash function `ckbhash`. The annotation `||` means bytes concatenation.
 
-The version ckb2021 only cares about the `extension_hash`:
-
-```
-extension_hash = 0 when extension is empty, otherwise
-
-extension_hash = ckbhash(extension)
-```
+The version ckb2021 does not verify the content of `extension`, it only requires that its length is at most 96 bytes.
 
 The `extra_hash` is defined as:
 
-* When `extension_hash` is 0, `extra_hash` is the same with the `uncles_hash`.
-* Otherwise `extra_hash = ckbhash(uncles_hash || extension_hash)`
+* When `extension` is empty, `extra_hash` is the same with the `uncles_hash`.
+* Otherwise `extra_hash = ckbhash(uncles_hash || ckbhash(extension))`
 
 The version ckb2021x will add consensus rule on the schema of `extension` and nodes must synchronize the field to verify that it is valid.
 
@@ -76,15 +70,15 @@ struct RawHeader {
 }
 ```
 
-The new field `extension_hash` will be added to the block body and following data structures:
+The new field `extension` will be added to the block body and following data structures:
 
 ```
 table Block {
-    header:         Header,
-    uncles:         UncleBlockVec,
-    transactions:   TransactionVec,
-    proposals:      ProposalShortIdVec,
-    extension_hash: Byte32,
+    header:       Header,
+    uncles:       UncleBlockVec,
+    transactions: TransactionVec,
+    proposals:    ProposalShortIdVec,
+    extension:    Bytes,
 }
 
 table CompactBlock {
@@ -93,16 +87,16 @@ table CompactBlock {
     prefilled_transactions: IndexTransactionVec,
     uncles:                 Byte32Vec,
     proposals:              ProposalShortIdVec,
-    extension_hash:         Byte32,
+    extension:              Bytes,
 }
 ```
 
-Before ckb2021 is activated, `extension_hash` must be zero. After activation, the node must verify that `uncles` and `extension_hash` match the `extra_hash` in the header.
+Before ckb2021 is activated, `extension` must be empty. After activation, the node must verify that `uncles` and `extension` match the `extra_hash` in the header.
 
 ### RPC Changes
 
 * The `uncles_hash` is renamed to `extra_hash`.
-* The new field `extension_hash` is returned as block body. For blocks generated in ckb2019, it is always zero.
+* The new field `extension` is added to the block body RPC response. For blocks generated in ckb2019, it is always empty.
 
 ## Comparison With Alternative Solutions
 
