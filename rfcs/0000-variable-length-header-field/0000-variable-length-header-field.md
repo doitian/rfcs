@@ -97,7 +97,7 @@ table CompactBlock {
 }
 ```
 
-Before ckb2021 is activated, `extension_hash` must be zero. After activation, the node must verify that `uncles` and `exntesion_hash` match the `extra_hash` in the header.
+Before ckb2021 is activated, `extension_hash` must be zero. After activation, the node must verify that `uncles` and `extension_hash` match the `extra_hash` in the header.
 
 ### RPC Changes
 
