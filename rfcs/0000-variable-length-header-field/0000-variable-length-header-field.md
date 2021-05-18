@@ -93,6 +93,8 @@ table CompactBlock {
 
 Before ckb2021 is activated, `extension` must be empty. After activation, the node must verify that `uncles` and `extension` match the `extra_hash` in the header.
 
+Pay attention that the `extension` field will occupy the block size.
+
 ### RPC Changes
 
 * The `uncles_hash` is renamed to `extra_hash`.
