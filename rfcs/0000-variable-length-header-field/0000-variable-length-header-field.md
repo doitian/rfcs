@@ -27,7 +27,7 @@ This document proposes a solution to add a variable length field in the block. H
 
 The block header is encoded as a molecule struct, which consists of fixed length fields. The header binary is just the concatenation of all the fields in sequence.
 
-There are many different ways to add the variable length field to the block header. This RFC proposes to replace the `uncles_hash` in the header with the new field `extra_hash`, which is also a 64-bytes hash. The block will have a new field `extension`.
+There are many different ways to add the variable length field to the block header. This RFC proposes to replace the `uncles_hash` in the header with the new field `extra_hash`, which is also a 32-bytes hash. The block will have a new field `extension`.
 
 The following paragraphs will refer to the current running CKB version as ckb2019, the next fork as ckb2021 and the soft fork introducing the schema of `extension` as ckb2021x.
 
