@@ -44,10 +44,10 @@ The relay protocol C will be dropped after the fork succeeds.
 
 When a new block is appended to the chain and the fork is activated, or a block is rolled back and the fork is deactivated, the CKB node must rerun the verification on all the transactions in the pool.
 
-Because `hash_type` is no longer a simple enum with values "data" and "type", the [`Script`](https://github.com/nervosnetwork/ckb/blob/develop/rpc/README.md#type-script) structure in the RPC will receive a new field `vm_version`.
+Because `hash_type` is no longer a simple enum with values "data" and "type", it will become a JSON object in the [`Script`](https://github.com/nervosnetwork/ckb/blob/develop/rpc/README.md#type-script) structure returned from the CKB RPC.
 
-* When the `hash_type` is 1, the `hash_type` in the corresponding JSON object is "type" and `vm_version` must be absent.
-* When the `hash_type` is an even number D, the `hash_type` in the corresponding JSON object is "data" and `vm_version` must be 0x prefixed string which encodes D/2 in hex.
+* When the `hash_type` is 1, the `hash_type` in JSON is `{"kind": "type"}`.
+* When the `hash_type` is an even number D, the `hash_type` in JSON is `{"kind": "data", "vm_version": D/2}`.
 
 ### CKB VM Versions
 
