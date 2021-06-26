@@ -1,6 +1,6 @@
 ---
 Number: "0221"
-Category: Consensus (Hard Fork)
+Category: Consensus (Soft Fork)
 Status: Draft
 Author: Ian Yang
 Organization: Nervos Foundation
@@ -32,7 +32,7 @@ When an input `since` field is present, and
 The transaction is mature when
 
 ```
-StartTime + SinceValue ≥ MedianTimestamp
+MedianTimestamp ≥ StartTime + SinceValue
 ```
 
 where
@@ -43,7 +43,7 @@ where
 
 The transaction verification fails if the transaction is immature.
 
-The only change is `StartTime`, which is the median of the previous 37 blocks preceding the one that has committed the consumed cell. Because block timestamp must be larger than the median of its previous 37 blocks, the new consensus rule is looser than the old rule. The transaction that is mature using the old rule must be mature using the new rule, but the transaction that is mature using the new rule may be immature using the old rule.
+The only change is `StartTime`, which was the median of the previous 37 blocks preceding the one that has committed the consumed cell. Because block timestamp must be larger than the median of its previous 37 blocks, the new consensus rule is stricker than the old rule. The transaction that is mature using the old rule may be immature using the new rule, but the transaction that is mature using the new rule must be mature using the old rule.
 
 ## Test Vectors
 
@@ -59,9 +59,9 @@ Assuming that:
 * The timestamp of block S is 20,000.
 * The median of the previous 37 blocks preceding block T is 615,000
 
-In the old consensus, StartTime + SinceValue = 10,000 + 600,000 = 610,000, which is less than the MedianTimestamp 615,000.
+In the old consensus, StartTime + SinceValue = 10,000 + 600,000 = 610,000, which is less than the MedianTimestamp 615,000, thus the transaction is mature.
 
-But in the new rule, StartTime + SinceValue = 20,000 + 600,000 = 620,000 ≥ 615,000.
+But in the new rule, StartTime + SinceValue = 20,000 + 600,000 = 620,000 ≥ 615,000, so the transactino is still immature.
 
 ## Deployment
 
@@ -69,8 +69,8 @@ The deployment can be performed in two stages.
 
 The first stage will activate the new consensus rule starting from a specific epoch. The mainnet and testnet will use different starting epochs and all other chains will use the new rule from epoch 0.
 
-After the fork is activated, the old rule will be replaced by the new rule starting from the genesis block in all chains.
+After the fork is activated, and if the transactions in the old rule all satisfies the new rule, the old consensus rule will be removed and the new rule will be applied from the genesis block.
 
 ## Backward compatibility
 
-Because the new consensus rule is looser than the old one, this proposal must be deployed via a hard fork.
+Because the new consensus rule is stricker than the old one, this proposal can be deployed via a soft fork.
