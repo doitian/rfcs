@@ -21,33 +21,34 @@ This RFC proposes a general mechanism that how CKB node chooses the CKB VM versi
 
 ## Specification
 
-The CKB VM upgrades via hard fork. The next scheduled hard fork is ckb2021, which is activated since a specific epoch. For all the transactions in the blocks before the activation epoch, they must run the CKB VM version 0 to verify all the script groups. In these transactions, the `hash_type` in cell lock and type script must be either 0 or 1.
+The CKB VM upgrades via hard fork. The next scheduled hard fork is ckb2021, which is activated since a specific epoch. For all the transactions in the blocks before the activation epoch, they must run the CKB VM version 0 to verify all the script groups. In these transactions, the `hash_type` in cell lock and type script must be either 0 or 1 in the serialized molecule data.
 
-After ckb2021 is activated, CKB node must choose the CKB VM version for each script group. The `hash_type` field in the lock and type script must be 1 or any even numbers. Cells are sorted into different groups if they have different `hash_type`. According to the value of `hash_type`:
+After ckb2021 is activated, CKB node must choose the CKB VM version for each script group. The allowed values for the `hash_type` field in the lock and type script are 0, 1, and 2. Cells are sorted into different groups if they have different `hash_type`. According to the value of `hash_type`:
 
+* When the `hash_type` is 0, the script group matches code via data hash and will run the code using the CKB VM version 0.
 * When the `hash_type` is 1, the script group matches code via type script hash and will run the code using the CKB VM version 1.
-* When the `hash_type` is a even number D, the script group matches code via data hash and will run the code using the CKB VM version D/2.
+* When the `hash_type` is 2, the script group matches code via data hash and will run the code using the CKB VM version 2.
 
 See following sections about VM versions.
 
-The transaction is considered invalid if any `hash_type` is:
-
-* an odd number that is not 1
-* an even number D that D/2 is larger than the largest known CKB VM version.
+The transaction is considered invalid if any `hash_type` is not in the allowed values 0, 1, and 2.
 
 Because the VM selection algorithm depends on which epoch the transaction belongs to, it is not deterministic for transactions still in the memory pool. The CKB node must run two versions of transaction relay protocols, one for the current CKB version C and another for the next fork version N.
 
 * Before the fork is activated, CKB node must relay transactions via relay protocol C and must drop all messages received via protocol N.
 * After the fork is activated, CKB node must relay transactions via relay protocol N and must drop all messages received via protocol C.
 
-The relay protocol C will be dropped after the fork succeeds.
+The relay protocol C will be dropped after the fork succeeds. See [rfc234] for details.
+
+[rfc234]: ../0234-ckb2021-p2p-protocol-upgrade/0234-ckb2021-p2p-protocol-upgrade.md
 
 When a new block is appended to the chain and the fork is activated, or a block is rolled back and the fork is deactivated, the CKB node must rerun the verification on all the transactions in the pool.
 
-Because `hash_type` is no longer a simple enum with values "data" and "type", it will become a JSON object in the [`Script`](https://github.com/nervosnetwork/ckb/blob/develop/rpc/README.md#type-script) structure returned from the CKB RPC.
+In the [Rust implementation of CKB](https://github.com/nervosnetwork/ckb) provided by Nervos Foundation, the `hash_type` is returned as a enum. Now it has three allowed values:
 
-* When the `hash_type` is 1, the `hash_type` in JSON is `{"kind": "type"}`.
-* When the `hash_type` is an even number D, the `hash_type` in JSON is `{"kind": "data", "vm_version": D/2}`.
+* 0: "data"
+* 1: "type"
+* 2: "data1"
 
 ### CKB VM Versions
 
